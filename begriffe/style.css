@@ -1,0 +1,143 @@
+@font-face {
+  font-display: swap;
+  font-family: 'Cormorant';
+  font-style: normal;
+  font-weight: 400;
+  src: url('fonts/Cormorant-Medium.ttf') format('ttf');
+}
+
+
+@page {
+	size: A4 portrait;
+	margin: 0;
+}
+
+html {
+	/* Baseunit ist die Breite einer Karte */
+	--baseunit: 300px;
+	print-color-adjust: exact;
+}
+@media print {
+	html {
+		/* Baseunit ist die Breite einer Karte */
+		--baseunit: 36.19047619vw;
+	}
+}
+
+body {
+	margin: 0 auto;
+	padding: 0;
+	/* Auch auf dem Bildschirm sollen nicht mehr als 4 Karten nebeneinander */
+	max-width: calc(3 * var(--baseunit));
+	font-size: calc(0.07 * var(--baseunit));
+	font-family: 'Noto Serif';
+}
+
+.header {
+	margin: 40px 0 40px 0;
+}
+@media print {
+	.header {
+		display: none;
+	}
+}
+
+.pages {
+	display: block;
+	page-break-after: always;
+}
+.pages__single {
+	page-break-after: always;
+	box-sizing: border-box;
+	display: flex;
+	flex-wrap: wrap;
+	margin: 0 auto;
+	position: relative;
+}
+@media print {
+	.pages__single {
+		/* So viel Rand um die Seite, dass 3 Cards nebeneinander zentriert sind */
+		padding: calc(50vw - (1.5 * var(--baseunit))) 0 0 calc(50vw - (1.5 * var(--baseunit)));
+	}
+}
+
+.card {
+	width: calc(1 * var(--baseunit));
+	height: calc(1 * var(--baseunit));
+	box-sizing: border-box;
+	padding: calc(0 * var(--baseunit)) calc(0.15 * var(--baseunit)) 0 calc(0.15 * var(--baseunit));
+	position: relative;
+	display: flex;
+  flex-direction: column;
+  justify-content: center;
+	border: 1px solid #ccc;
+	border-radius: 50%;
+}
+@media print {
+	.card {
+		/* Gedruckt ohne Rand für Toleranz beim Schneiden */
+		border-color: transparent;
+		position: absolute;
+	}
+	.card:before {
+		/* 13cm */
+		width: calc(1.710526 * var(--baseunit));
+		/* 10,1cm */
+		height: calc(1.328947 * var(--baseunit));
+		position: absolute;
+		/* 1,25cm vom oberen Rand */
+		top: calc(-0.16447368 * var(--baseunit));
+		/* 2,7cm vom oberen Rand */
+		left: calc(-0.35526 * var(--baseunit));
+		border: 1px solid black;
+		border-radius: 30%;
+		content: "";
+	}
+	.card:nth-child(1) {
+		/* 1.45cm von oben */
+		top: calc(0.190789 * var(--baseunit));
+		/* 0.5cm Rand von der Seite */
+		left: calc(0.065789 * var(--baseunit));
+	}
+	.card:nth-child(2) {
+		/* 11.05cm = 1,45 Rand + 7,6 Kreis + 2,0 Abstand von oben */
+		top: calc(1.453947 * var(--baseunit));
+		/* 0.5cm Rand von der Seite */
+		left: calc(0.065789 * var(--baseunit));
+	}
+	.card:nth-child(3) {
+		/* 20,65cm = 1,45 Rand + 2x7,6 + 2x2,0 von oben */
+		top: calc(2.717105 * var(--baseunit));
+		/* 0.5cm Rand von der Seite */
+		left: calc(0.065789 * var(--baseunit));
+	}
+	.card:nth-child(4) {
+		/* 1.45cm von oben */
+		top: calc(0.190789 * var(--baseunit));
+		/* 12,9cm Rand von der Seite */
+		left: calc(1.6974 * var(--baseunit));
+	}
+	.card:nth-child(5) {
+		/* 11.05cm = 1,45 Rand + 7,6 Kreis + 2,0 Abstand von oben */
+		top: calc(1.453947 * var(--baseunit));
+		/* 12,9cm Rand von der Seite */
+		left: calc(1.6974 * var(--baseunit));
+	}
+	.card:nth-child(6) {
+		/* 20,65cm = 1,45 Rand + 2x7,6 + 2x2,0 von oben */
+		top: calc(2.717105 * var(--baseunit));
+		/* 12,9cm Rand von der Seite */
+		left: calc(1.6974 * var(--baseunit));
+	}
+
+
+}
+
+.card__text {
+	margin: 0 0 calc(0.04 * var(--baseunit)) 0;
+	line-height: 1.1em;
+	text-align: center;
+}
+.card__easyhardseparator {
+	height: calc(0.07 * var(--baseunit));
+}

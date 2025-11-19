@@ -1,0 +1,66 @@
+let begriffe_leicht = `
+Dating
+Expartner
+Trennung
+Orgasmus
+Kondom
+Schlafzimmer
+Analplug
+Analverkehr
+Andreaskreuz
+Aphrodisiakum
+Audioporno
+Beckenboden-gymnastik
+Bordell
+Cock-Ring
+Dildo
+Doggy-Style
+Eifersucht
+Fifty Shades of Grey
+Französisch
+Fummeln
+Fußfetischist
+G-Punkt
+Geplatztes Kondom
+Harness
+Hausfreund
+High Heels
+Kamasutra
+Knutschfleck
+Kuschelsex
+Lesbensex
+Löffelchenstellung
+Massagekerze
+Masturbieren
+Nippelpiercing
+Nylonstrümpfe
+Nymphomanin
+One-Night-Stand
+Parkplatztreff
+Partnertausch
+Petting
+Pornodarsteller
+Pornosucht
+Prostatamassage
+Quickie
+Reiterstellung
+Safer Sex
+Saunaclub
+Seitensprung
+Sexarbeiterin
+Stellung 69
+String ouvert
+Sugar Daddy
+Swinger
+Tinder
+Transgender
+Transvestit
+Umschnalldildo
+Vanillasex
+Venushügel
+Viagra
+Vibrator
+Vorzeitiger Orgasmus
+Voyeur
+Vögeln
+`
