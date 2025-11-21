@@ -1,0 +1,243 @@
+/* Schriftart einbetten */
+@font-face {
+    font-family: 'CormorantMedium';
+    src: url('cormorant-medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'CormorantSemiBold';
+    src: url('cormorant-semibold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+}
+
+:root {
+    --main-font: 'CormorantMedium', serif;
+    --font-inverse: 'CormorantSemiBold', serif;
+    
+    --color-primary-dark: #003366; 
+    --color-accent-green: #004D00;
+    --color-accent-violet: #330033;
+    --color-text-dark: #333; 
+    --color-background: #fefefe;
+    --color-border-light: #eee;
+}
+
+/* -------------------- GENERAL / APP -------------------- */
+
+body {
+    font-family: var(--main-font);
+    background-color: var(--color-background);
+    color: var(--color-text-dark);
+    margin: 0;
+    line-height: 1.6;
+    font-size: 1.1em; 
+}
+
+.app {
+    max-width: 850px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 80px;
+}
+
+/* -------------------- HEADER (ZWEITRANGIG) -------------------- */
+
+.header {
+    background-color: var(--color-primary-dark);
+    color: white;
+    padding: 10px 20px 5px 20px;
+    text-align: center;
+}
+
+.header__title {
+    margin: 0;
+    font-size: 1.5em; 
+    font-weight: 500;
+    opacity: 1; /* KORREKTUR: Reines Weiß */
+}
+
+/* -------------------- VIEWS & CONTENT -------------------- */
+
+.view--hidden {
+    display: none !important;
+}
+
+.content-area {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+/* --- BUTTONS --- */
+
+.button {
+    font-family: var(--font-inverse);
+    border: none;
+    padding: 15px 30px; 
+    font-size: 1.2em;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s, transform 0.2s;
+    width: 100%;
+    max-width: 550px; 
+}
+
+.button--primary {
+    background-color: var(--color-accent-green); 
+    color: white;
+    box-shadow: 0 3px 0 #002e00; 
+}
+
+.button--primary:hover {
+    background-color: #006600;
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 #002e00;
+}
+
+.button--centered {
+    margin: 0 auto; 
+    display: block;
+}
+
+/* --- Zufällige Auswahl --- */
+
+.random-selection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#random-content-wrapper {
+    width: 100%;
+    max-width: 550px;
+    margin: 0 auto; 
+}
+
+.random-selection__prompt {
+    font-size: 1.3em; 
+    text-align: center;
+    margin: 15px 0 30px 0;
+    font-weight: 500;
+}
+
+.random-selection__list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+/* HIERARCHIE-PUNKT 1: BEGRIFFE */
+.card-item {
+    font-family: var(--font-inverse);
+    background-color: var(--color-background);
+    border: 3px solid var(--color-primary-dark);
+    border-radius: 12px;
+    padding: 15px 15px; 
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.8em; 
+}
+
+.card-item--selected {
+    background-color: var(--color-accent-violet);
+    color: white;
+    border-color: var(--color-accent-violet);
+    box-shadow: 0 0 15px rgba(51, 0, 51, 0.5);
+    pointer-events: none; 
+}
+
+/* --- Einzelansicht nach Auswahl --- */
+
+.single-view__card {
+    margin: 40px auto;
+}
+
+.single-view__instruction {
+    margin-top: 30px;
+    font-size: 1.4em;
+    color: var(--color-accent-green);
+    font-weight: 600;
+    font-family: var(--font-inverse);
+    text-align: center;
+}
+
+/* --- Listenansichten (Verlauf, Alle Begriffe) --- */
+
+.list-wrapper {
+    padding: 0 10px;
+}
+
+.list-wrapper__title {
+    color: var(--color-primary-dark);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 1.7em;
+    border-bottom: none; /* KORREKTUR: Striche entfernt */
+}
+
+.list-wrapper__list {
+    list-style: none; 
+    padding: 0;
+}
+
+.list-wrapper__list-item {
+    padding: 10px 0; /* KORREKTUR: Abstand reduziert (von 15px) */
+    border-bottom: 1px dashed var(--color-border-light);
+    font-size: 1.2em; 
+}
+
+.list-wrapper__timestamp {
+    font-size: 0.85em;
+    color: #555;
+}
+
+/* -------------------- FOOTER NAVIGATION (UNTERGEORDNET) -------------------- */
+
+.navigation-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 51, 102, 0.95);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.navigation-footer__nav {
+    display: flex;
+    justify-content: space-around;
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+.navigation-footer__item {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 8px 0;
+    color: rgba(255, 255, 255, 0.8); /* KORREKTUR: Helleres Grau (fast Weiß) für bessere Sichtbarkeit */
+    cursor: pointer;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    transition: color 0.2s, background-color 0.2s;
+    font-family: var(--main-font);
+    font-size: 0.85em; 
+}
+
+.navigation-footer__item--active {
+    color: white; /* Reines Weiß */
+    background-color: var(--color-accent-violet);
+}
+
+.navigation-footer__icon {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 2px;
+    stroke: currentColor; 
+}
