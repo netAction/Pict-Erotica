@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 const textLines = card.text_content.split('\n');
                 const lineCount = textLines.length;
-                const LINE_HEIGHT_MM = FONT_SIZE * 0.3528 * 1.2;
+                const LINE_HEIGHT_MM = FONT_SIZE * 0.3528 * 1.1;
                 const totalTextHeight = lineCount * LINE_HEIGHT_MM;
 
                 const startY = textAreaYStart + (availableTextHeight / 2) - (totalTextHeight / 2) + (LINE_HEIGHT_MM * 0.75);
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const textLines = card.text_content.split('\n');
                 const lineCount = textLines.length;
                 
-                const LINE_HEIGHT_MM_ATTR = FONT_SIZE_ATTR * 0.3528 * 1.2;
+                const LINE_HEIGHT_MM_ATTR = FONT_SIZE_ATTR * 0.3528 * 1.1;
                 
                 // Platzierung: Startpunkt ist nahe dem oberen Rand (innerContentY)
                 // Wir verwenden innerContentY + Puffer, um den Text im oberen 5mm Bereich zu halten.
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         doc.deletePage(1); 
-        doc.save('spielkarten.pdf');
+        doc.save('vorderseiten.pdf');
     }
 
     // V. INITIALISIERUNG START

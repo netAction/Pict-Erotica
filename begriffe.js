@@ -5,7 +5,6 @@ Akne
 Amor
 Analplug
 Analverkehr
-Analverkehr
 Andreaskreuz
 Androgyn
 Anmachen
@@ -74,7 +73,6 @@ Fisting
 Flirten
 Fotze
 Französisch
-Französisch
 Freier
 Fremdgehen
 Frigidität
@@ -111,7 +109,6 @@ Joyclub
 Jungfrau
 Jungfräulichkeit verlieren
 Kamasutra
-Kamasutra
 Klitoris
 Klitorisklemme
 Knutschfleck
@@ -135,7 +132,6 @@ Löffelchenstellung
 Lovetoy Sexspielzeug
 Lubrikation
 Lust
-Lusttropfen
 Lusttropfen
 Marquis de Sade
 Maskulin
@@ -204,7 +200,6 @@ Puff
 Puffmutter
 Queer
 Quickie
-Quickie
 Rabbit Vibrator
 Rache-Sex
 Reeperbahn
@@ -215,7 +210,6 @@ Rollenspiel
 Romantik
 Rotlichtviertel
 Sadismus
-Safer Sex
 Safer Sex
 Samenerguss
 Samenleiter
