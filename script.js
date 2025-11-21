@@ -16,6 +16,8 @@ const MAX_RANDOM_WORDS = 4;
 
 let allWords = [];
 let currentView = 'random'; 
+let lastSelectedWord = null; // Speichert den Zustand: Der ausgewählte Einzelbegriff (Phase 2)
+let currentRandomWords = []; // Speichert die Ziehung: Die 4 Begriffe in der Liste (Phase 1)
 
 const loadAndCleanWords = () => {
     const rawData = window.begriffeRaw || ''; 
@@ -35,11 +37,15 @@ const loadAndCleanWords = () => {
 };
 
 
-// II. SPEICHERUNG UND VERLAUF (Logik unverändert)
+// II. SPEICHERUNG UND VERLAUF
+
 const loadHistory = () => {
     try {
         const historyJson = localStorage.getItem(STORAGE_KEY);
-        return historyJson ? JSON.parse(historyJson) : [];
+        const history = historyJson ? JSON.parse(historyJson) : [];
+        
+        // NEU: Wir setzen lastSelectedWord hier NICHT mehr. Dies erfolgt nur noch beim App-Start.
+        return history;
     } catch (e) {
         console.error("Fehler beim Laden des LocalStorage:", e);
         return [];
@@ -48,10 +54,15 @@ const loadHistory = () => {
 
 const saveSelection = (word) => {
     const history = loadHistory();
+    
+    // Zustand: Aktualisiert den ausgewählten Begriff und löscht die aktuelle Liste
+    lastSelectedWord = word; 
+    currentRandomWords = []; 
+    
     if (history.length > 0 && history[0].word === word) {
         return; 
     }
-
+    
     const timestamp = new Date().toLocaleString('de-DE', { 
         year: 'numeric', 
         month: '2-digit', 
@@ -86,7 +97,6 @@ const switchView = (viewName) => {
         targetView.classList.remove('view--hidden');
     }
     
-    // Management des Haupt-Buttons (nur bei Random sichtbar)
     RANDOM_ACTION_BUTTON.style.display = (viewName === 'random') ? 'block' : 'none';
 };
 
@@ -100,36 +110,56 @@ const setActiveNav = (viewName) => {
 };
 
 /**
- * Phase 1: Zeigt die View mit vier zufälligen Begriffen zur Auswahl an.
+ * Hilfsfunktion: Zieht und speichert eine neue Liste von Wörtern.
+ */
+const generateNewRandomWords = () => {
+    if (allWords.length < MAX_RANDOM_WORDS) {
+        // Bei Fehler leere Liste zurückgeben
+        currentRandomWords = [];
+        return;
+    }
+    
+    const shuffled = [...allWords].sort(() => 0.5 - Math.random());
+    currentRandomWords = shuffled.slice(0, MAX_RANDOM_WORDS);
+};
+
+
+/**
+ * Haupt-Renderfunktion für die Zufallsauswahl.
  */
 const renderRandomSelection = () => {
     switchView('random');
-    
-    // Stellt den Zustand der Elemente vor der Auswahl wieder her
-    RANDOM_PROMPT.classList.remove('single-view__instruction');
-    RANDOM_PROMPT.textContent = "Wähle den Begriff aus, den du mit Karten legen möchtest:";
-    
-    if (allWords.length < MAX_RANDOM_WORDS) {
-        RANDOM_LIST_CONTAINER.innerHTML = `<p>Nicht genügend Begriffe in der Liste.</p>`;
+
+    // 1. Priorität: Wenn ein Wort gewählt wurde (Phase 2), zeige diesen Begriff an.
+    if (lastSelectedWord && lastSelectedWord.length > 0) {
+        renderSingleSelected(lastSelectedWord);
         return;
     }
-
-    const shuffled = [...allWords].sort(() => 0.5 - Math.random());
-    const randomWords = shuffled.slice(0, MAX_RANDOM_WORDS);
-
+    
+    // 2. Priorität: Wenn eine Liste von 4 Wörtern existiert (Phase 1), zeige diese an.
+    // (Diese Logik greift nach dem Drücken des Buttons oder beim Zurücknavigieren.)
+    if (currentRandomWords.length === 0) {
+        // Falls der Speicher leer ist (z.B. nach App-Start ohne gespeicherte Liste), neu ziehen
+        generateNewRandomWords();
+    }
+    
+    // Fall 1 & 2: Liste rendern
     let html = ``;
-    randomWords.forEach(word => {
+    currentRandomWords.forEach(word => {
         html += `<div class="card-item" data-word="${word}">${word}</div>`;
     });
     
     RANDOM_LIST_CONTAINER.innerHTML = html;
+    RANDOM_PROMPT.classList.remove('single-view__instruction');
+    RANDOM_PROMPT.textContent = "Wähle den Begriff aus, den du mit Karten legen möchtest:";
+
 
     // Event Listener für die Auswahl hinzufügen
     document.querySelectorAll('.card-item').forEach(card => {
         card.addEventListener('click', (event) => {
             const selectedWord = event.target.dataset.word;
             renderSingleSelected(selectedWord);
-            saveSelection(selectedWord);
+            saveSelection(selectedWord); 
         });
     });
 };
@@ -139,7 +169,7 @@ const renderRandomSelection = () => {
  * @param {string} word 
  */
 const renderSingleSelected = (word) => {
-    // 1. Alle Karten löschen und nur die ausgewählte Karte rendern
+    // 1. Nur die ausgewählte Karte rendern
     RANDOM_LIST_CONTAINER.innerHTML = `<div class="card-item card-item--selected single-view__card">${word}</div>`;
     
     // 2. Prompt anpassen
@@ -176,7 +206,6 @@ const renderAllWords = () => {
     
     let html = ``;
     allWords.forEach(word => {
-        // Da list-style: none im CSS gesetzt ist, keine Bullets
         html += `<li class="list-wrapper__list-item">${word}</li>`;
     });
     
@@ -190,7 +219,6 @@ const renderAllWords = () => {
  */
 const renderCredits = () => {
     switchView('credits');
-    // Inhalt ist statisch in der HTML
 };
 
 
@@ -200,9 +228,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Daten laden und bereinigen
     loadAndCleanWords();
 
-    // 2. Navigation-Buttons
-    document.getElementById('show-random-action').addEventListener('click', renderRandomSelection);
+    // 2. Initialen Zustand (lastSelectedWord) aus dem Verlauf laden
+    const history = loadHistory();
+    if (history.length > 0) {
+        lastSelectedWord = history[0].word;
+    }
     
+    // NEU: Initialen Satz an Wörtern ziehen, falls keine Auswahl vorhanden
+    if (!lastSelectedWord) {
+        generateNewRandomWords();
+    }
+
+
+    // 3. Navigation-Buttons (Footer)
     NAV_ITEMS.forEach(button => {
         button.addEventListener('click', (event) => {
             const view = event.currentTarget.dataset.view;
@@ -223,6 +261,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // 3. Startansicht laden
+    // Bindet den Haupt-Action-Button einmal bei DOMContentLoaded
+    document.getElementById('show-random-action').addEventListener('click', () => {
+        // Setzt den Zustand zurück und erzwingt eine NEUE Ziehung
+        lastSelectedWord = null; 
+        generateNewRandomWords(); // Zieht neue Wörter in currentRandomWords
+        renderRandomSelection(); 
+    });
+
+
+    // 4. Startansicht laden
     renderRandomSelection();
 });

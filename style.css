@@ -26,11 +26,24 @@
 
 /* -------------------- GENERAL / APP -------------------- */
 
+/* SCROLL FIX: Verhindert unnötiges Scrollen auf der Seite */
+html {
+    box-sizing: border-box;
+}
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Verhindert primäres Scrollen */
+}
+
 body {
     font-family: var(--main-font);
     background-color: var(--color-background);
     color: var(--color-text-dark);
-    margin: 0;
     line-height: 1.6;
     font-size: 1.1em; 
 }
@@ -38,10 +51,9 @@ body {
 .app {
     max-width: 850px;
     margin: 0 auto;
-    min-height: 100vh;
+    height: 100%; /* Nimmt die volle Höhe an */
     display: flex;
     flex-direction: column;
-    padding-bottom: 80px;
 }
 
 /* -------------------- HEADER (ZWEITRANGIG) -------------------- */
@@ -51,13 +63,14 @@ body {
     color: white;
     padding: 10px 20px 5px 20px;
     text-align: center;
+    flex-shrink: 0; /* Verhindert, dass der Header beim Scrollen schrumpft */
 }
 
 .header__title {
     margin: 0;
     font-size: 1.5em; 
     font-weight: 500;
-    opacity: 1; /* KORREKTUR: Reines Weiß */
+    opacity: 1; 
 }
 
 /* -------------------- VIEWS & CONTENT -------------------- */
@@ -66,9 +79,12 @@ body {
     display: none !important;
 }
 
+/* KORREKTUR: Der Scrollbereich wird auf den Content-Bereich angewendet */
 .content-area {
     padding: 20px;
     flex-grow: 1;
+    overflow-y: auto; /* Erlaubt vertikales Scrollen, wenn nötig */
+    padding-bottom: 80px; /* Platz für die Fixed Footer Navigation */
 }
 
 /* --- BUTTONS --- */
@@ -103,12 +119,6 @@ body {
 }
 
 /* --- Zufällige Auswahl --- */
-
-.random-selection {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
 
 #random-content-wrapper {
     width: 100%;
@@ -177,7 +187,7 @@ body {
     padding-bottom: 10px;
     margin-bottom: 20px;
     font-size: 1.7em;
-    border-bottom: none; /* KORREKTUR: Striche entfernt */
+    border-bottom: none; /* Striche entfernt */
 }
 
 .list-wrapper__list {
@@ -186,7 +196,7 @@ body {
 }
 
 .list-wrapper__list-item {
-    padding: 10px 0; /* KORREKTUR: Abstand reduziert (von 15px) */
+    padding: 10px 0; /* Abstand reduziert */
     border-bottom: 1px dashed var(--color-border-light);
     font-size: 1.2em; 
 }
@@ -206,6 +216,7 @@ body {
     background-color: rgba(0, 51, 102, 0.95);
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
     z-index: 1000;
+    flex-shrink: 0;
 }
 
 .navigation-footer__nav {
@@ -220,7 +231,7 @@ body {
     background: none;
     border: none;
     padding: 8px 0;
-    color: rgba(255, 255, 255, 0.8); /* KORREKTUR: Helleres Grau (fast Weiß) für bessere Sichtbarkeit */
+    color: rgba(255, 255, 255, 0.8); 
     cursor: pointer;
     display: flex;
     flex-direction: column; 
@@ -231,7 +242,7 @@ body {
 }
 
 .navigation-footer__item--active {
-    color: white; /* Reines Weiß */
+    color: white;
     background-color: var(--color-accent-violet);
 }
 
