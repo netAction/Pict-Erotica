@@ -3,6 +3,7 @@ Abspritzen
 Affäre
 Akne
 Amor
+Analkette
 Analplug
 Analverkehr
 Andreaskreuz
@@ -45,6 +46,7 @@ Doggy-Style
 Doktorspiele
 Dolly Buster
 Dominanz
+Doppeldildo
 Dreier
 Eichel
 Eifersucht

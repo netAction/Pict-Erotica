@@ -1,9 +1,10 @@
-// Achtung: jsPDF und svg2pdf müssen über <script>-Tags geladen sein!
+// Achtung: jsPDF und svg2pdf müssen über <script>-tags geladen sein!
 // spielkarten_daten muss verfügbar sein!
+// CORMORANT_MEDIUM_BASE64 muss verfügbar sein!
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // I. JS-PDF & SVG IMPORT PRÜFUNG (wie zuvor)
+    // I. JS-PDF & SVG IMPORT PRÜFUNG
     if (typeof window.jspdf === 'undefined') {
         console.error("jsPDF 3.0.3 wurde nicht geladen.");
         return;
@@ -26,8 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const CORMORANT_MEDIUM_BASE64 = window.CORMORANT_MEDIUM_BASE64;
 
 
-    // II. GLOBALE KONSTANTEN & MAẞE (wie zuvor)
+    // II. GLOBALE KONSTANTEN & MAẞE
     const TOTAL_BACKS = 110; 
+    const EMPTY_FIELD_PERCENTAGE = 0.20; // 20% der Felder bleiben leer
     
     // PDF-MAẞE
     const totalWidth = 65; 
@@ -68,15 +70,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         return shuffled;
     }
     
-    // III. DATENVORBEREITUNG MIT RECYCLING (VORAB PARSEN)
+    // III. DATENVORBEREITUNG MIT FILTERUNG UND RECYCLING
     function collectAndParseSvgs(data) {
         const parsedSvgs = [];
         
         data.forEach(gruppe => {
             gruppe.cards.forEach(card => {
-                if (card.image_svg) {
+                // NEU: Filterung nach image_on_backside
+                if (card.image_svg && card.image_on_backside === true) {
                     try {
                         const svgElement = parser.parseFromString(card.image_svg, 'image/svg+xml').documentElement;
+                        // Stellt sicher, dass die Piktogramme schwarz sind
                         svgElement.setAttribute('fill', 'rgb(0,0,0)');
                         svgElement.setAttribute('stroke', 'none'); 
                         
@@ -89,9 +93,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         if (parsedSvgs.length < REQUIRED_PICTOS) { 
-             console.warn(`WARNUNG: Nur ${parsedSvgs.length} Piktogramme gefunden. Es werden ${REQUIRED_PICTOS} für eine eindeutige Rückseite benötigt. Piktogramme werden wiederholt.`);
+             console.warn(`WARNUNG: Nur ${parsedSvgs.length} Piktogramme mit 'image_on_backside: true' gefunden. Es werden ${REQUIRED_PICTOS} für eine eindeutige Rückseite benötigt. Piktogramme werden wiederholt.`);
         } else {
-             console.log(`${parsedSvgs.length} Piktogramme gefunden. Eindeutiges Mosaik möglich.`);
+             console.log(`${parsedSvgs.length} freigegebene Piktogramme gefunden. Eindeutiges Mosaik möglich.`);
         }
         return parsedSvgs;
     }
@@ -116,8 +120,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const BG_COLOR = [255, 255, 255];
         
-        // --- WICHTIGE NEUE STRUKTUR: Sequenzieller Seiten-Loop ---
-        
         for (let i = 0; i < TOTAL_BACKS; i++) { 
             
             doc.addPage(); 
@@ -126,25 +128,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Hintergrund zeichnen
             doc.setFillColor(BG_COLOR[0], BG_COLOR[1], BG_COLOR[2]); 
             doc.rect(0, 0, totalWidth, totalHeight, 'F'); 
-            
+
             // NEU: Verfügbare Piktogramme für DIESE Seite mischen
-            // Wenn weniger als 60 Piktogramme existieren, werden sie wiederholt.
             let shuffledSvgs = shuffleArray(allParsedSvgs);
             
-            // Mosaik generieren (Sequenzieller await-Aufruf)
+            // Mosaik generieren
             for (let row = 0; row < ROWS; row++) {
                 for (let col = 0; col < COLS; col++) {
-                    // Sicherstellen, dass der Piktogramm-Pool aufgefüllt wird, falls er kleiner als 60 ist
+                    
+                    // NEUE LOGIK: 20% der Felder leer lassen
+                    if (Math.random() < EMPTY_FIELD_PERCENTAGE) {
+                        continue; // Feld überspringen, bleibt weiß/leer
+                    }
+
+                    // Sicherstellen, dass der Piktogramm-Pool aufgefüllt wird, falls er leer ist
                     if (shuffledSvgs.length === 0) {
                         shuffledSvgs = shuffleArray(allParsedSvgs);
                     }
 
-                    // NEU: Das letzte (nächste) Piktogramm aus dem gemischten Array ziehen
-                    // Das Element wird entfernt, um Wiederholung zu vermeiden
+                    // Das nächste Piktogramm aus dem gemischten Array ziehen
                     const svgElementBase = shuffledSvgs.pop(); 
                     
-                    // Tiefenkopie erstellen
-                    const svgElement = svgElementBase.cloneNode(true);
+                    // Tiefe Kopie erstellen
+                    const svgElement = svgElementBase.cloneNode(true); 
 
                     const x = offsetX + col * (P_SIZE + P_GAP);
                     const y = offsetY + row * (P_SIZE + P_GAP);
@@ -164,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         doc.deletePage(1); // Erste leere Seite löschen
-        doc.save('spielkarten_rueckseiten.pdf');
+        doc.save('rueckseiten.pdf'); // KORRIGIERT: Neuer Dateiname
     }
 
     // V. INITIALISIERUNG START

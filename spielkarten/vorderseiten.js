@@ -30,7 +30,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // II. GLOBALE KONSTANTEN & MAẞE
+    // Hintergrundfarbe der Attribut-Karten (Hellblau-Grau)
+    const ATTRIBUTE_BG_RGB = [224, 232, 240]; // #E0E8F0
+    
+    // Hintergrundfarbe der Piktogramm-Karten (Nahe am alten Wert)
     const NEUTRAL_BG_RGB = [236, 240, 241]; 
+    
     const FONT_NAME = 'CormorantMedium'; // Der interne Name für jsPDF
     const FONT_STYLE = 'normal';
     
@@ -51,26 +56,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     const innerContentHeight = cardHeight - 2 * visibleBorderWidth; 
 
 
-    // --- NEU: ATTRIBUT-KARTEN DATEN ---
-    const MODIFIER_COLOR = "#607D8B"; // Dunkelgrau/Blau
+    // --- AKTUALISIERTE ATTRIBUT-KARTEN DATEN ---
+    const MODIFIER_COLOR_HEX = "#708D9E"; // Gedämpftes Blau-Grau
     
+    // SVG-Codes für die Modifikatoren
+    const SVG_MODIFIER_TOP = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 184.25 197.81"><path d="M0,0v197.81h8.5c0-3.91,1.59-7.46,4.15-10.02s6.11-4.15,10.02-4.15h138.9c3.91,0,7.46,1.59,10.02,4.15s4.15,6.11,4.15,10.02h8.5V0H0Z" style="fill:${MODIFIER_COLOR_HEX};"/></svg>`;
+    const SVG_MODIFIER_CENTER = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 184.25 113.39"><path d="M184.25,113.39V0h-8.5c0,3.91-1.59,7.46-4.15,10.02s-6.11,4.15-10.02,4.15H22.68c-3.91,0-7.46-1.59-10.02-4.15S8.5,3.91,8.5,0H0v113.39h8.5c0-3.91,1.59-7.46,4.15-10.02s6.11-4.15,10.02-4.15h138.9c3.91,0,7.46,1.59,10.02,4.15s4.15,6.11,4.15,10.02h8.5Z" style="fill:${MODIFIER_COLOR_HEX};"/></svg>`;
+
+
     const attribut_karten_daten = [
-        { text: "HAUPTASPEKT", color: MODIFIER_COLOR, title: "MODIFIKATOR" }, 
-        { text: "NEBENASPEKT", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
-        { text: "NEBENASPEKT", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
-        { text: "NEBENASPEKT", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
-        { text: "NEBENASPEKT", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
-        { text: "NEBENASPEKT", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
-        { text: "NEBENASPEKT", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
-        { text: "VIEL", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
-        { text: "WICHTIG", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
-        { text: "KEIN / NICHT", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
-        { text: "FÜHRT ZU", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
-        { text: "", color: MODIFIER_COLOR, title: "MODIFIKATOR" },
+        { text: "Hauptaspekt", color: MODIFIER_COLOR_HEX, position: "top" },
+        { text: "Nebenaspekt", color: MODIFIER_COLOR_HEX, position: "top" },
+        { text: "wie", color: MODIFIER_COLOR_HEX, position: "top" },
+        { text: "kein / nicht", color: MODIFIER_COLOR_HEX, position: "top" },
+        { text: "vulgär", color: MODIFIER_COLOR_HEX, position: "top" },
+        { text: "Wichtig!", color: MODIFIER_COLOR_HEX, position: "top" },
+        { text: "metaphorisch", color: MODIFIER_COLOR_HEX, position: "top" },
+        { text: "Der gesuchte\nBegriff ist ↓", color: MODIFIER_COLOR_HEX, position: "top" },
+        { text: "entweder ↑ oder ↓", color: MODIFIER_COLOR_HEX, position: "center" },
+        { text: "↓ anstelle von ↑", color: MODIFIER_COLOR_HEX, position: "center" },
+        { text: "vorher ↑, nachher ↓", color: MODIFIER_COLOR_HEX, position: "center" },
+        { text: "erst ↑, dann ↓", color: MODIFIER_COLOR_HEX, position: "center" },
+        { text: "↑ führt zu ↓", color: MODIFIER_COLOR_HEX, position: "center" },
     ];
 
 
-    // III. HILFSFUNKTIONEN (unverändert)
+    // III. HILFSFUNKTIONEN
     function flattenCards(data) {
         let cardId = 1;
         const allCards = [];
@@ -102,18 +113,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             format: [totalWidth, totalHeight] 
         });
 
-        // --- FONT EINBETTUNG START ---
+        // --- FONT EINBETTUNG ---
         doc.addFileToVFS(FONT_NAME + '.ttf', CORMORANT_MEDIUM_BASE64); 
         doc.addFont(FONT_NAME + '.ttf', FONT_NAME, FONT_STYLE);
         doc.setFont(FONT_NAME, FONT_STYLE);
-        // --- FONT EINBETTUNG ENDE ---
 
-
-        // Allgemeine Einstellungen
-        doc.setFontSize(10);
-        
-        // Temporärer Parser für das SVG-Markup
         const parser = new DOMParser();
+        const rotCenterY = totalHeight / 2; // Hilfsvariable für die Mitte
 
         for (const card of cards) { 
             
@@ -125,7 +131,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // --- Layout-Switch: Piktogramm-Karte vs. Attribut-Karte ---
             
-            if (card.svg_code) {
+            // Prüft auf 'svg_code' UND 'title', um Piktogramm-Karten zu identifizieren.
+            if (card.svg_code && card.title) {
                 // A. PIKTOGRAMM-KARTE (mit SVG)
                 
                 // 2. INNERE KARTENFLÄCHE (WEISS/NEUTRAL, ABGERUNDET)
@@ -133,9 +140,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 doc.roundedRect(innerContentX, innerContentY, innerContentWidth, innerContentHeight, radius, radius, 'F');
 
                 // 3. TITEL IM FARBIGEN 5MM-RAND (Oben)
-                const titleYPosition = bleed + visibleBorderWidth / 2 + 1;
+                const titleYPosition = bleed + visibleBorderWidth / 2 + 1.5; 
                 doc.setFontSize(12);
-                doc.setTextColor(255, 255, 255); // WEISS FÜR DEN RAND
+                doc.setTextColor(255, 255, 255); 
                 doc.text(card.title.toUpperCase(), totalWidth / 2, titleYPosition, { align: 'center' }); 
 
                 // 4. PIKTOGRAMM PLATZIERUNG (SVG-Code)
@@ -184,34 +191,72 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
 
             } else {
-                // B. ATTRIBUT-KARTE (VOLLFLÄCHIG FARBIG, TEXT OBEN ZENTRIERT)
+                // B. ATTRIBUT-KARTE (GEDÄMPFTES DESIGN)
                 
-                // 5. TEXTPLATZIERUNG FÜR ATTRIBUT-KARTE (Horizontal zentriert, oben positioniert)
+                // Setzt den Hintergrund auf Hellblau-Grau
+                doc.setFillColor(ATTRIBUTE_BG_RGB[0], ATTRIBUTE_BG_RGB[1], ATTRIBUTE_BG_RGB[2]); 
+                doc.rect(0, 0, totalWidth, totalHeight, 'F');
                 
+                const position = card.position;
+                
+                let svgCode; // Deklariert svgCode mit 'let' für Zuweisung (FIX)
+                let svgWidth = totalWidth; 
+                let svgHeight = 0;
+                let svgY = 0;
+                
+                // Bestimmung von Größe und Position des SVG
+                if (position === 'top') {
+                    svgCode = SVG_MODIFIER_TOP;
+                    svgHeight = 69.78; 
+                    svgY = -40;
+                } else if (position === 'center') {
+                    svgCode = SVG_MODIFIER_CENTER;
+                    svgHeight = 40;
+                    svgY = rotCenterY - (svgHeight / 2); 
+                }
+                
+                // SVG RENDERING DES HINTERGRUNDES
+                if (svgCode) {
+                    const svgElement = parser.parseFromString(svgCode, 'image/svg+xml').documentElement;
+                    await svgConverter(svgElement, doc, { 
+                        x: 0, 
+                        y: svgY, 
+                        width: svgWidth, 
+                        height: svgHeight 
+                    });
+                }
+                
+                // 5. TEXTPLATZIERUNG (Über dem SVG zentriert)
                 doc.setFont(FONT_NAME, FONT_STYLE);
-                doc.setTextColor(255, 255, 255); // WEISSE SCHRIFT auf farbigem Grund
-                const FONT_SIZE_ATTR = 20; // Etwas größer, aber nicht zu groß
+                doc.setTextColor(255, 255, 255); 
+                const FONT_SIZE_ATTR = 20; 
                 doc.setFontSize(FONT_SIZE_ATTR); 
 
                 const textLines = card.text_content.split('\n');
                 const lineCount = textLines.length;
-                
-                const LINE_HEIGHT_MM_ATTR = FONT_SIZE_ATTR * 0.3528 * 1.1;
-                
-                // Platzierung: Startpunkt ist nahe dem oberen Rand (innerContentY)
-                // Wir verwenden innerContentY + Puffer, um den Text im oberen 5mm Bereich zu halten.
-                const topTextStart = innerContentY + visibleBorderWidth + 5; 
+                const LINE_HEIGHT_MM_ATTR = FONT_SIZE_ATTR * 0.3528 * 1; // Faktor 1 (enger)
+                const totalTextHeight = lineCount * LINE_HEIGHT_MM_ATTR;
 
-                let currentY = topTextStart;
                 
-                textLines.forEach(line => {
-                    // X-Koordinate: totalWidth / 2 -> Horizontal zentriert
-                    // Y-Koordinate: currentY -> Positionierung von oben nach unten
-                    doc.text(line, totalWidth / 2, currentY, { 
-                        align: 'center'
-                    });
-                    currentY += LINE_HEIGHT_MM_ATTR;
-                });
+                if (position === 'top') {
+                     // StartY = Mitte des 69.78mm hohen SVG-Segments - 17mm Korrektur
+                     const startYTop = (svgHeight / 2) - (totalTextHeight / 2) + (LINE_HEIGHT_MM_ATTR * 0.4) - 17;
+                     
+                     let currentY = startYTop;
+                     textLines.forEach(line => {
+                         doc.text(line, totalWidth / 2, currentY, { align: 'center' });
+                         currentY += LINE_HEIGHT_MM_ATTR;
+                     });
+                } else if (position === 'center') {
+                     // StartY = Mitte des 40mm Blocks + 2.5mm Korrektur
+                     const startYCenter = svgY + (svgHeight / 2) - (totalTextHeight / 2) + (LINE_HEIGHT_MM_ATTR * 0.4) + 2.5;
+                     
+                     let currentY = startYCenter;
+                     textLines.forEach(line => {
+                         doc.text(line, totalWidth / 2, currentY, { align: 'center' });
+                         currentY += LINE_HEIGHT_MM_ATTR;
+                     });
+                }
             }
         }
 
@@ -222,18 +267,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // V. INITIALISIERUNG START
     const fertigePiktogrammKarten = flattenCards(spielkarten_daten);
     
+    // Attribut-Karten in das flache Format konvertieren
     const startCardNumber = fertigePiktogrammKarten.length + 1;
     
-    // Attribut-Karten in das flache Format konvertieren
     const fertigeAttributKarten = attribut_karten_daten.map((card, index) => ({
         cardnumber: startCardNumber + index,
         color: card.color, 
-        title: card.title,
-        svg_code: null, // WICHTIG: Kein SVG, um den Layout-Switch auszulösen
-        text_content: card.text.trim()
+        title: null, 
+        // SVG-Code wird aus Position abgeleitet (dieser Key wird nur hier zur Ableitung genutzt)
+        svg_code: card.position === 'top' ? SVG_MODIFIER_TOP : SVG_MODIFIER_CENTER, 
+        text_content: card.text.trim(),
+        position: card.position
     }));
 
-    // Alle Karten zusammenführen
     const alleKarten = [...fertigePiktogrammKarten, ...fertigeAttributKarten];
 
     await generatePDF(alleKarten); 
